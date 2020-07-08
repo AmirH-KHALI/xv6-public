@@ -125,3 +125,11 @@ sys_spri(void)
   }
   return set_priority(priority); 
 }
+
+int
+sys_nice(void)
+{
+  int pid, queue_lvl;
+  if (argint(0, &pid) < 0 || argint(1, &queue_lvl) < 0) return -1;
+  return nice(pid, queue_lvl);
+}

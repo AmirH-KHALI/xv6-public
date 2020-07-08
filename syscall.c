@@ -106,6 +106,7 @@ extern int sys_uptime(void);
 extern int sys_rnps(void);
 extern int sys_waitx(void);
 extern int sys_spri(void);
+extern int sys_nice(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -132,6 +133,7 @@ static int (*syscalls[])(void) = {
 [SYS_rnps]    sys_rnps,
 [SYS_waitx]   sys_waitx,
 [SYS_spri]    sys_spri,
+[SYS_nice]    sys_nice
 };
 
 void

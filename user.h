@@ -27,6 +27,7 @@ int uptime(void);
 int rnps(struct proc_info*);
 int waitx(int *wtime, int *rtime);
 int spri(int);
+int nice(int, int);
 
 // ulib.c
 int stat(const char*, struct stat*);

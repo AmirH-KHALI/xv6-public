@@ -23,3 +23,4 @@
 #define SYS_rnps   22 //Index for the new system call. rnps is short RUNNING/RUNNABLE processes
 #define SYS_waitx  23
 #define SYS_spri   24
+#define SYS_nice   25
