@@ -31,10 +31,7 @@ void create_test_processes(int pcnt, int idx)
   int pid = fork();
 
   if (pid == 0) create_test_processes(pcnt, idx + 1);
-  else if (pid > 0) {
-    nice(pid, test_queue_lvl[idx]); 
-    printf(0, "Running process with index=%d and pid=%d\n", idx, pid);
-    while (1); //NOP
+  else if (pid > 0) {while (1); //NOP
   }
   else printf(0, "E: fork error");
 }
@@ -47,7 +44,10 @@ int main(void)
 
   if (pid > 0)
   {
-    wait();
+    sleep(300);
+    printf(0, "Changing queue level for process with pid=%d to %d\n", pid, 2);
+    nice(pid, 2);
+    rnps(p);
     print_processes(p);
   } else if (pid == 0)
   {

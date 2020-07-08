@@ -119,6 +119,7 @@ found:
   p->etime = -1;
   p->iotime = 0;
   p->priority = 60;
+  p->level = 3;
   return p;
 }
 
@@ -652,5 +653,21 @@ int set_priority(int new_priority)
 
 int nice(int pid, int queue_lvl) 
 {
+  if (pid < 0 || queue_lvl < 1 || queue_lvl > 3) return -1;  
+  acquire(&ptable.lock);
+
+  int inc = 0;
+
+  struct proc *p;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if ((p -> pid) == pid) {
+      if ((p -> pid) > queue_lvl) inc = 1; //We might only need to reschedule if priority is higher than before
+      p->level = queue_lvl;
+      break;
+    }
+  }
+  release(&ptable.lock);
+  if (inc >= 0) yield();
   return 0;
 }
