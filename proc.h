@@ -54,6 +54,7 @@ struct proc {
   int iotime;                  // IO time
   int rtime;                   // Running time
   int priority;                // Scheduling Priority [A number from 1 to 100]
+  int level;                   // Indicates queue level in MLQ scheduling
 };
 // Process memory is laid out contiguously, low addresses first:
 //   text
