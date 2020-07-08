@@ -331,32 +331,77 @@ wait(void)
 void
 scheduler(void)
 {
-  struct proc *p;
+  struct proc *p = 0;
   struct cpu *c = mycpu();
   c->proc = 0;
- 
+
   for(;;){
   
-    int high_priority = 1000;
     struct proc *candidate = 0;
     // Enable interrupts on this processor.
     sti();
 
-    // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
-
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      if (p->priority < high_priority) {
-        candidate = p;
-	high_priority = p->priority;
+    // Loop over process table looking for process to run.
+    int lvl = 1;
+    for (lvl = 2; lvl <= 3; lvl++)
+    {
+      //First check the first level queue.
+      if (lvl == 1)
+      {
+	int flag = 0;
+        for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+	{
+	   if (p -> state != RUNNABLE) continue;
+	   if ((p -> level) == lvl)
+	   {
+             flag = 1;
+	     candidate = p;
+	     break;
+	   }
+	}
+	if (flag) break;
+      } else if (lvl == 2)
+      {
+	//Check second level queue in round robin fashion (no time slice, aka time slice = 1 tick)
+        static int ind2 = 0; // Static value helps us store value for next round
+	int cnt2 = 0;
+	int flag2 = 0;
+        for(cnt2 = 0; cnt2 < NPROC; cnt2++)
+	{
+	  p = ptable.proc + (cnt2 + ind2) % NPROC;
+	  if (p -> state != RUNNABLE) continue;
+	  if ((p -> level) == lvl)
+	  {
+            flag2 = 1;
+	    candidate = p;
+	    break;
+	  }
+	  cnt2++;
+	}
+	ind2++;
+        if (flag2) break;
+      } else if (lvl == 3) {
+        //Same as second queue
+        static int ind3 = 0;
+	int cnt3 = 0;
+	int flag3 = 0;
+        for(cnt3 = 0; cnt3 < NPROC; cnt3++)
+	{
+	  p = ptable.proc + (cnt3 + ind3) % NPROC;
+	  if (p -> state != RUNNABLE) continue;
+	  if ((p -> level) == lvl)
+	  {
+            flag3 = 1;
+	    candidate = p;
+	    break;
+	  }
+	  cnt3++;
+	}
+	ind3++;
+        if (flag3) break;
       }
     }
-
     //To ensure that least one RUNNABLE processes was found
     if (candidate != 0)
     {
@@ -372,7 +417,6 @@ scheduler(void)
       c->proc = 0;
     }
     release(&ptable.lock);
-
   }
 }
 

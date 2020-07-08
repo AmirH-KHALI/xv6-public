@@ -32,23 +32,23 @@ void create_test_processes(int pcnt, int idx)
 
   if (pid == 0) create_test_processes(pcnt, idx + 1);
   else if (pid > 0) {
-    nice(pid, test_queue_lvl[idx]); 
+    sleep(1000);
     printf(0, "Running process with index=%d and pid=%d\n", idx, pid);
-    while (1); //NOP
+    int tmp = 47;
+    for (int i = 0; i < 10000000; i++) tmp = (tmp + i % 13) % 23; //Just some computation for the process
   }
   else printf(0, "E: fork error");
 }
 
 int main(void)
 {
-  struct proc_info p[100];
+  //struct proc_info p[100];
   
   int pid = fork();
 
   if (pid > 0)
   {
     wait();
-    print_processes(p);
   } else if (pid == 0)
   {
     create_test_processes(10, 0);
