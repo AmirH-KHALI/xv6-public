@@ -622,7 +622,7 @@ int waitx(int *wtime, int *rtime)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-	*wtime = (p->etime - p->stime);
+	*wtime = (p->etime - p->stime - p->rtime - p->iotime);
 	*rtime = p->rtime;
         release(&ptable.lock);
         return pid;
