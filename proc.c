@@ -587,6 +587,7 @@ int get_process_infos(struct proc_info *infos)
      infos[ind].pid = p -> pid; // set process id
      strncpy(infos[ind].name, p -> name, strlen(p -> name)); // set process name
      infos[ind].memsize = p -> sz; //set process size
+     infos[ind].priority = p->priority;
 
      ind++;
   }

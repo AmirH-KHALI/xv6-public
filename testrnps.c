@@ -5,7 +5,7 @@
 
 //print process info with formatting
 void print_proc(struct proc_info *info) {
-  printf(0, "\nPID: %d | NAME: %s | MEMSIZE: %d\n" , info -> pid, info -> name, info -> memsize);
+  printf(0, "\nPID: %d | NAME: %s | MEMSIZE: %d | PRIORITY: %d\n" , info -> pid, info -> name, info -> memsize, info -> priority);
 }
 
 void print_processes(struct proc_info *p) 
