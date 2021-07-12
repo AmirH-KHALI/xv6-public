@@ -89,3 +89,18 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+int
+sys_pdump(void)
+{
+    int *size;
+    struct proc_info *procs;
+
+    argptr(0, (void *)&procs, sizeof(struct proc_info));
+    argptr(1, (void *)&size, sizeof(int));
+
+    pdump(procs, size);
+
+    return 0;
+}

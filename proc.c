@@ -532,3 +532,41 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+
+void
+pdump(struct proc_info *procs, int *size)
+{
+    struct proc *p = ptable.proc;
+    struct proc_info *tail = procs;
+    (*size) = 0;
+
+    acquire(&ptable.lock);
+
+    for (int i = 0; i < NPROC; ++i, ++p) {
+        if (p->state != RUNNING && p->state != RUNNABLE)
+            continue;
+
+        tail->memsize = p->sz;
+        tail->pid = p->pid;
+        tail++;
+        (*size)++;
+
+        for (int j = (*size) - 1; j > 0; --j) {
+
+            if (procs[j].memsize >= procs[j - 1].memsize)
+                break;
+
+            int sz = procs[j - 1].memsize;
+            int pid = procs[j - 1].pid;
+            procs[j - 1].memsize = procs[j].memsize;
+            procs[j - 1].pid = procs[j].pid;
+            procs[j].memsize = sz;
+            procs[j].pid = pid;
+        }
+    }
+
+    release(&ptable.lock);
+
+    return;
+}
