@@ -117,6 +117,7 @@ found:
   p->etime = -1;
   p->iotime = 0;
   p->priority = 60;
+  p->level = 3;
 
   return p;
 }
@@ -331,49 +332,90 @@ wait(void)
 void
 scheduler(void)
 {
-  struct proc *p;
-  struct cpu *c = mycpu();
-  c->proc = 0;
-  
-  for(;;){
-    // Enable interrupts on this processor.
-    sti();
+    struct proc *p;
+    static int ind2 = 0;
+    static int ind3 = 0;
+    struct cpu *c = mycpu();
+    c->proc = 0;
 
-    // Loop over process table looking for process to run.
-    acquire(&ptable.lock);
-    int high_priority = 9999;
-    struct proc *next_proc = 0;
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+    for(;;){
+        // Enable interrupts on this processor.
+        sti();
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
+        acquire(&ptable.lock);
+        struct proc *next_proc = 0;
+        for (int lvl = 1; lvl <= 3; ++lvl) {
+            if (lvl == 1) {
+                int flag = 0;
+                for (int i = 0; i < NPROC; ++i) {
+                    p = ptable.proc + i;
+                    if (p->state != RUNNABLE)
+                        continue;
 
-      if (p->priority < high_priority) {
-          next_proc = p;
-          high_priority = p->priority;
+                    if (p->level == lvl) {
+                        flag = 1;
+                        next_proc = p;
+                        break;
+                    }
+                }
+                if (flag)
+                    break;
+            } else if (lvl == 2) {
+                int flag = 0;
+                for (int i = 0; i < NPROC; ++i) {
+                    p = ptable.proc + (i + ind2) % NPROC;
+                    if (p -> state != RUNNABLE)
+                        continue;
+
+                    if (p -> level == lvl) {
+                        flag = 1;
+                        next_proc = p;
+                        break;
+                    }
+                    i++;
+                }
+                ind2++;
+                ind2 %= NPROC;
+                if (flag)
+                    break;
+            } else {
+                int flag = 0;
+                for(int i = 0; i < NPROC; ++i) {
+                    p = ptable.proc + (i + ind3) % NPROC;
+                    if (p -> state != RUNNABLE)
+                        continue;
+
+                    if (p -> level == lvl) {
+                        flag = 1;
+                        next_proc = p;
+                        break;
+                    }
+                    i++;
+                }
+                ind3++;
+                ind3 %= NPROC;
+                if (flag)
+                    break;
+            }
         }
+
+        if (next_proc) {
+
+            c->proc = next_proc;
+            switchuvm(next_proc);
+            next_proc->state = RUNNING;
+
+            swtch(&(c->scheduler), next_proc->context);
+            switchkvm();
+
+            // Process is done running for now.
+            // It should have changed its p->state before coming back.
+            c->proc = 0;
+        }
+
+        release(&ptable.lock);
+
     }
-
-    if (next_proc) {
-
-      c->proc = next_proc;
-      switchuvm(next_proc);
-      next_proc->state = RUNNING;
-
-      swtch(&(c->scheduler), next_proc->context);
-      switchkvm();
-
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
-    }
-
-    release(&ptable.lock);
-
-  }
 }
 
 // Enter scheduler.  Must hold only ptable.lock
