@@ -182,6 +182,8 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_procdumptest\
+	_waitxtest\
+    _setprioritytest\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -255,6 +257,8 @@ EXTRA=\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
 	procdumptest.c\
+	waitxtest.c\
+    setprioritytest.c\
 
 dist:
 	rm -rf dist
