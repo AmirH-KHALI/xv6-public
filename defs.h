@@ -105,6 +105,8 @@ int             pipewrite(struct pipe*, char*, int);
 //PAGEBREAK: 16
 // proc.c
 void            pdump(struct proc_info *procs, int *size);
+int             waitx(int *, int *);
+int             spri(int);
 int             cpuid(void);
 void            exit(void);
 int             fork(void);

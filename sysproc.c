@@ -104,3 +104,24 @@ sys_pdump(void)
 
     return 0;
 }
+
+int
+sys_waitx(void)
+{
+    int *rtime, *wtime;
+
+    argptr(0, (char**)&rtime, sizeof(int));
+    argptr(1, (char**)&wtime, sizeof(int));
+
+    return waitx(wtime, rtime);
+}
+
+int
+sys_spri(void)
+{
+    int priority;
+
+    argptr(0, (void*)&priority, sizeof(int));
+
+    return spri(priority);
+}

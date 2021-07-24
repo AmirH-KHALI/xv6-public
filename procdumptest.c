@@ -9,7 +9,7 @@
 
 int main(int argc, const char *argv[]) {
 
-    int pcount = atoi(argv[1]);
+    int pcount = 10;
     int pids[NPROC];
 
     for (int i = 0; i < pcount; ++i) {
